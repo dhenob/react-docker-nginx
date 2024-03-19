@@ -10,12 +10,12 @@ RUN npm run build
 FROM nginx:1.21-alpine as production-stage
 COPY --from=build-stage /app/build /usr/share/nginx/html
 
-# Replace the default nginx.conf with your custom file
+# Adjust permissions before switching to non-root user
 COPY nginx.conf /etc/nginx/nginx.conf
+RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /usr/share/nginx/html /etc/nginx/nginx.conf && \
+    chmod -R 755 /var/cache/nginx /var/log/nginx
 
-# Change ownership of the Nginx directories to the nginx user for security
-RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx /etc/nginx/nginx.conf
-
+# Now switch to non-root user
 USER nginx
 
 EXPOSE 80
